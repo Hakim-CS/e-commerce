@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Home - E-Commerce Platform{% endblock %}
+
+{% block content %}
+<!-- Hero Banner -->
+<section class="banner">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="display-4 fw-bold">Welcome to Our E-Commerce Store</h1>
+                <p class="lead">Discover amazing products at competitive prices.</p>
+                <a href="{{ url_for('list_products') }}" class="btn btn-light btn-lg">Shop Now</a>
+            </div>
+            <div class="col-md-6 text-center">
+                <img src="https://placehold.co/600x400/87CEEB/FFFFFF?text=E-Commerce" class="img-fluid rounded" alt="E-Commerce Banner">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Featured Products</h2>
+        <div class="row">
+            {% if featured_products %}
+                {% for product in featured_products %}
+                <div class="col-md-3 mb-4">
+                    <div class="card product-card h-100 shadow-sm">
+                        <div class="card-img-top bg-light d-flex justify-content-center align-items-center" style="height: 200px;">
+                            <i class="fas fa-box fa-4x text-secondary"></i>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text text-muted small">{{ product.description|truncate(100) }}</p>
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <span class="fw-bold">${{ "%.2f"|format(product.price) }}</span>
+                                <a href="{{ url_for('get_product', product_id=product.id) }}" class="btn btn-sm btn-outline-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center">
+                    <p>No featured products available at the moment.</p>
+                </div>
+            {% endif %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('list_products') }}" class="btn btn-primary">View All Products</a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Why Shop With Us</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-truck fa-3x text-primary"></i>
+                        </div>
+                        <h4 class="card-title">Fast Delivery</h4>
+                        <p class="card-text">Free shipping on orders over $50. Quick delivery to your doorstep.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-shield-alt fa-3x text-primary"></i>
+                        </div>
+                        <h4 class="card-title">Secure Payments</h4>
+                        <p class="card-text">Your payment information is always secure with our encrypted payment system.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-undo fa-3x text-primary"></i>
+                        </div>
+                        <h4 class="card-title">Easy Returns</h4>
+                        <p class="card-text">Not satisfied? Return any item within 30 days for a full refund.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

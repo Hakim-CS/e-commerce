@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.env
+*.log
+
+# Node.js / React
+node_modules/
+*.lock
+dist/
+build/
+
+# VS Code / Replit
+.vscode/
+.replit
+replit.nix
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Postman / test exports
+*.postman_collection.json

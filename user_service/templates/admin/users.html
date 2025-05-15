@@ -1,0 +1,318 @@
+{% extends 'base.html' %}
+
+{% block title %}User Management - Admin{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2><i class="fas fa-users me-2"></i>User Management</h2>
+    </div>
+    <div class="col-md-6 text-md-end">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
+            <i class="fas fa-user-plus me-1"></i>Create New User
+        </button>
+    </div>
+</div>
+
+<div class="card shadow">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Roles</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.first_name }} {{ user.last_name }}</td>
+                        <td>
+                            {% if user.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% for role in user.roles %}
+                            <span class="badge bg-info">{{ role.name }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{{ url_for('user.get_user', user_id=user.id) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editUserModal" 
+                                        data-user-id="{{ user.id }}" 
+                                        data-username="{{ user.username }}" 
+                                        data-email="{{ user.email }}" 
+                                        data-first-name="{{ user.first_name }}" 
+                                        data-last-name="{{ user.last_name }}" 
+                                        data-is-active="{{ user.is_active }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                {% if user.is_active %}
+                                <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deactivateUserModal" data-user-id="{{ user.id }}" data-username="{{ user.username }}">
+                                    <i class="fas fa-user-slash"></i>
+                                </button>
+                                {% else %}
+                                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#activateUserModal" data-user-id="{{ user.id }}" data-username="{{ user.username }}">
+                                    <i class="fas fa-user-check"></i>
+                                </button>
+                                {% endif %}
+                                <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#resetPasswordModal" data-user-id="{{ user.id }}" data-username="{{ user.username }}">
+                                    <i class="fas fa-key"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Create User Modal -->
+<div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createUserModalLabel">Create New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('user.create_user') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="createUsername" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="createUsername" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="createEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="createEmail" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="createPassword" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="createPassword" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="createFirstName" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="createFirstName" name="first_name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="createLastName" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="createLastName" name="last_name">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Roles</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="1" id="roleAdmin" name="role_ids">
+                            <label class="form-check-label" for="roleAdmin">Admin</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="2" id="roleUser" name="role_ids" checked>
+                            <label class="form-check-label" for="roleUser">User</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editUserForm" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editUsername" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="editUsername" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editEmail" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editFirstName" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="editFirstName" name="first_name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editLastName" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="editLastName" name="last_name">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="editIsActive" name="is_active" value="true">
+                            <label class="form-check-label" for="editIsActive">Active</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Roles</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="1" id="editRoleAdmin" name="role_ids">
+                            <label class="form-check-label" for="editRoleAdmin">Admin</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="2" id="editRoleUser" name="role_ids">
+                            <label class="form-check-label" for="editRoleUser">User</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Deactivate User Modal -->
+<div class="modal fade" id="deactivateUserModal" tabindex="-1" aria-labelledby="deactivateUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deactivateUserModalLabel">Deactivate User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to deactivate the user <span id="deactivateUsername"></span>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deactivateUserForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Deactivate</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activate User Modal -->
+<div class="modal fade" id="activateUserModal" tabindex="-1" aria-labelledby="activateUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="activateUserModalLabel">Activate User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to activate the user <span id="activateUsername"></span>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="activateUserForm" method="POST">
+                    <button type="submit" class="btn btn-success">Activate</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resetPasswordModalLabel">Reset Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="resetPasswordForm" method="POST">
+                <div class="modal-body">
+                    <p>Reset password for user: <span id="resetPasswordUsername"></span></p>
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="newPassword" name="new_password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Reset Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Edit User Modal
+    const editUserModal = document.getElementById('editUserModal');
+    editUserModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const userId = button.getAttribute('data-user-id');
+        const username = button.getAttribute('data-username');
+        const email = button.getAttribute('data-email');
+        const firstName = button.getAttribute('data-first-name');
+        const lastName = button.getAttribute('data-last-name');
+        const isActive = button.getAttribute('data-is-active');
+        
+        // Populate form fields
+        document.getElementById('editUsername').value = username;
+        document.getElementById('editEmail').value = email;
+        document.getElementById('editFirstName').value = firstName;
+        document.getElementById('editLastName').value = lastName;
+        document.getElementById('editIsActive').checked = isActive === 'True';
+        
+        // Set form action URL
+        document.getElementById('editUserForm').action = `/user/${userId}`;
+    });
+    
+    // Deactivate User Modal
+    const deactivateUserModal = document.getElementById('deactivateUserModal');
+    deactivateUserModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const userId = button.getAttribute('data-user-id');
+        const username = button.getAttribute('data-username');
+        
+        document.getElementById('deactivateUsername').textContent = username;
+        document.getElementById('deactivateUserForm').action = `/user/deactivate/${userId}`;
+    });
+    
+    // Activate User Modal
+    const activateUserModal = document.getElementById('activateUserModal');
+    activateUserModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const userId = button.getAttribute('data-user-id');
+        const username = button.getAttribute('data-username');
+        
+        document.getElementById('activateUsername').textContent = username;
+        document.getElementById('activateUserForm').action = `/user/${userId}`;
+        document.getElementById('activateUserForm').innerHTML += '<input type="hidden" name="is_active" value="true">';
+    });
+    
+    // Reset Password Modal
+    const resetPasswordModal = document.getElementById('resetPasswordModal');
+    resetPasswordModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const userId = button.getAttribute('data-user-id');
+        const username = button.getAttribute('data-username');
+        
+        document.getElementById('resetPasswordUsername').textContent = username;
+        document.getElementById('resetPasswordForm').action = `/user/reset-password/${userId}`;
+    });
+</script>
+{% endblock %}

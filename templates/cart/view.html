@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Your Cart - E-Commerce Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>Your Shopping Cart</h2>
+        </div>
+    </div>
+    
+    {% if items and items|length > 0 %}
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Cart Items ({{ items|length }})</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-borderless mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th scope="col" class="py-3 ps-4">Product</th>
+                                    <th scope="col" class="py-3 text-center">Price</th>
+                                    <th scope="col" class="py-3 text-center">Quantity</th>
+                                    <th scope="col" class="py-3 text-center">Total</th>
+                                    <th scope="col" class="py-3 text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr class="border-bottom">
+                                    <td class="py-3 ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="product-img bg-secondary bg-opacity-10 text-secondary d-flex justify-content-center align-items-center me-3" style="width: 60px; height: 60px; border-radius: 5px;">
+                                                <i class="fas fa-box fa-2x"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-0"><a href="{{ url_for('get_product', product_id=item[1].id) }}" class="text-decoration-none">{{ item[1].name }}</a></h6>
+                                                <small class="text-muted">SKU: {{ item[1].sku }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 text-center">${{ "%.2f"|format(item[0].price) }}</td>
+                                    <td class="py-3 text-center">
+                                        <form action="{{ url_for('update_cart_item', item_id=item[0].id) }}" method="POST" class="d-inline">
+                                            <div class="input-group input-group-sm" style="width: 120px;">
+                                                <button type="submit" name="action" value="decrease" class="btn btn-outline-secondary">-</button>
+                                                <input type="text" class="form-control text-center" value="{{ item[0].quantity }}" readonly>
+                                                <button type="submit" name="action" value="increase" class="btn btn-outline-secondary" {% if item[0].quantity >= item[1].stock %}disabled{% endif %}>+</button>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td class="py-3 text-center">${{ "%.2f"|format(item[0].price * item[0].quantity) }}</td>
+                                    <td class="py-3 text-end pe-4">
+                                        <form action="{{ url_for('remove_from_cart', item_id=item[0].id) }}" method="POST" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-white">
+                    <form action="{{ url_for('clear_cart') }}" method="POST" class="text-end">
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="fas fa-trash me-1"></i> Clear Cart
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Items ({{ items|length }}):</span>
+                        <span>${{ "%.2f"|format(total) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Shipping:</span>
+                        <span>Free</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3 fw-bold">
+                        <span>Total:</span>
+                        <span>${{ "%.2f"|format(total) }}</span>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('checkout') }}" class="btn btn-primary">
+                            <i class="fas fa-credit-card me-1"></i> Proceed to Checkout
+                        </a>
+                        <a href="{{ url_for('list_products') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-info text-center p-5">
+                <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                <h4>Your shopping cart is empty</h4>
+                <p class="mb-3">Looks like you haven't added any products to your cart yet.</p>
+                <a href="{{ url_for('list_products') }}" class="btn btn-primary">
+                    <i class="fas fa-shopping-bag me-1"></i> Start Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

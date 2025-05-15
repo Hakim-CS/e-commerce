@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Add New User' if is_new else 'Edit User' }} - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="mb-4">
+        <h2>{{ 'Add New User' if is_new else 'Edit User' }}</h2>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ 'User Information' if is_new else 'Edit User: ' + user.username }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('create_user') if is_new else url_for('update_user', user_id=user.id) }}">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="username" class="form-label">Username *</label>
+                                <input type="text" class="form-control" id="username" name="username" required 
+                                    {% if not is_new %}value="{{ user.username }}"{% endif %}>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="email" name="email" required 
+                                    {% if not is_new %}value="{{ user.email }}"{% endif %}>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="first_name" class="form-label">First Name *</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required 
+                                    {% if not is_new %}value="{{ user.first_name }}"{% endif %}>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name" class="form-label">Last Name *</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required 
+                                    {% if not is_new %}value="{{ user.last_name }}"{% endif %}>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="password" class="form-label">{{ 'Password *' if is_new else 'Password (leave blank to keep current)' }}</label>
+                                <input type="password" class="form-control" id="password" name="password" 
+                                    {% if is_new %}required{% endif %}>
+                                {% if not is_new %}
+                                <div class="form-text">Leave blank to keep the current password.</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mt-4">
+                                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                        {% if is_new or (not is_new and user.is_active) %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_active">Active Account</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label d-block">User Roles *</label>
+                            {% for role in roles %}
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="role-{{ role.id }}" name="roles" value="{{ role.id }}" 
+                                    {% if not is_new and role in user.roles %}checked{% endif %}
+                                    {% if role.name == 'user' and is_new %}checked{% endif %}>
+                                <label class="form-check-label" for="role-{{ role.id }}">{{ role.name|capitalize }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin_users') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> {{ 'Create User' if is_new else 'Update User' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Help</h5>
+                </div>
+                <div class="card-body">
+                    <h6>User Roles</h6>
+                    <ul class="list-unstyled">
+                        <li><span class="badge bg-info">admin</span> - Full access to all features</li>
+                        <li><span class="badge bg-info">manager</span> - Can manage products and orders</li>
+                        <li><span class="badge bg-info">user</span> - Regular user with limited access</li>
+                    </ul>
+                    
+                    <h6 class="mt-3">Active Account</h6>
+                    <p class="text-muted small">Inactive users cannot log in to the system. Use this to temporarily suspend access without deleting the account.</p>
+                    
+                    <h6 class="mt-3">Password Security</h6>
+                    <p class="text-muted small">Passwords should be at least 8 characters long and include a mix of letters, numbers, and special characters.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

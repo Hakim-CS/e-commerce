@@ -1,0 +1,420 @@
+openapi: 3.0.0
+info:
+  title: E-Commerce Microservices API
+  description: API documentation for the microservices-based e-commerce application
+  version: 1.0.0
+  
+servers:
+  - url: http://localhost:8000
+    description: User Service
+  - url: http://localhost:8001
+    description: Product Service
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        username:
+          type: string
+          example: "user123"
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        first_name:
+          type: string
+          example: "John"
+        last_name:
+          type: string
+          example: "Doe"
+        is_active:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    
+    Address:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        user_id:
+          type: integer
+          format: int64
+          example: 1
+        address_type:
+          type: string
+          enum: [home, work, billing, shipping, other]
+          example: "home"
+        street:
+          type: string
+          example: "123 Main St"
+        city:
+          type: string
+          example: "Boston"
+        state:
+          type: string
+          example: "MA"
+        postal_code:
+          type: string
+          example: "02108"
+        country:
+          type: string
+          example: "USA"
+        is_default:
+          type: boolean
+          example: true
+    
+    Contact:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        user_id:
+          type: integer
+          format: int64
+          example: 1
+        contact_type:
+          type: string
+          enum: [home, work, mobile, other]
+          example: "home"
+        phone_number:
+          type: string
+          example: "+1234567890"
+        email:
+          type: string
+          format: email
+          example: "home@example.com"
+        is_default:
+          type: boolean
+          example: true
+    
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "Smartphone X Pro"
+        sku:
+          type: string
+          example: "SPH-X100"
+        barcode:
+          type: string
+          example: "8901234567890"
+        description:
+          type: string
+          example: "Latest flagship smartphone with advanced camera features."
+        price:
+          type: number
+          format: float
+          example: 799.99
+        stock:
+          type: integer
+          example: 50
+        is_deleted:
+          type: boolean
+          example: false
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    
+    CartItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        cart_id:
+          type: integer
+          format: int64
+          example: 1
+        product_id:
+          type: integer
+          format: int64
+          example: 1
+        quantity:
+          type: integer
+          example: 2
+        price:
+          type: number
+          format: float
+          example: 799.99
+    
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        user_id:
+          type: integer
+          format: int64
+          example: 1
+        total:
+          type: number
+          format: float
+          example: 899.98
+        status:
+          type: string
+          enum: [pending, paid, shipped, delivered, canceled]
+          example: "pending"
+        shipping_address:
+          type: string
+          example: "123 Main St, Boston, MA 02108, USA"
+        billing_address:
+          type: string
+          example: "123 Main St, Boston, MA 02108, USA"
+        contact_info:
+          type: string
+          example: "Email: user@example.com, Phone: +1234567890"
+        created_at:
+          type: string
+          format: date-time
+    
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        order_id:
+          type: integer
+          format: int64
+          example: 1
+        product_id:
+          type: integer
+          format: int64
+          example: 1
+        quantity:
+          type: integer
+          example: 2
+        price:
+          type: number
+          format: float
+          example: 799.99
+        total:
+          type: number
+          format: float
+          example: 1599.98
+    
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: "admin"
+        password:
+          type: string
+          example: "admin123"
+          format: password
+    
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refresh_token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        token_type:
+          type: string
+          example: "bearer"
+        expires_in:
+          type: integer
+          example: 3600
+    
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+
+paths:
+  # User Service Endpoints
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate a user and get JWT tokens
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      description: Invalidate the current user's tokens
+      operationId: logout
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully logged out
+        '401':
+          description: Unauthorized
+  
+  /auth/checkLogin:
+    get:
+      tags:
+        - Authentication
+      summary: Check login status
+      description: Verify if the current token is valid
+      operationId: checkLogin
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Token is valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  authenticated:
+                    type: boolean
+                    example: true
+        '401':
+          description: Token is invalid or expired
+  
+  /authz/permissions:
+    get:
+      tags:
+        - Authorization
+      summary: Get user permissions
+      description: Fetch all permissions of the current user
+      operationId: getUserPermissions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of permissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                      example: "user.view"
+                    description:
+                      type: string
+                      example: "Can view user profiles"
+        '401':
+          description: Unauthorized
+  
+  /authz/hasRole/{role}:
+    get:
+      tags:
+        - Authorization
+      summary: Check user role
+      description: Check if user has a specific role
+      operationId: checkUserRole
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: role
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "admin"
+      responses:
+        '200':
+          description: Result of role check
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  has_role:
+                    type: boolean
+                    example: true
+        '401':
+          description: Unauthorized
+  
+  /authz/hasPermission/{permission}:
+    get:
+      tags:
+        - Authorization
+      summary: Check user permission
+      description: Check if user has a specific permission
+      operationId: checkUserPermission
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: permission
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "user.create"
+      responses:
+        '200':
+          description: Result of permission check
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  has_permission:
+                    type: boolean
+                    example: true
+        '401':
+          description: Unauthorized

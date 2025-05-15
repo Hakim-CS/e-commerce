@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - E-Commerce Platform{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('list_products') }}">Products</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <!-- Product Image -->
+        <div class="col-md-5 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-img-top bg-light d-flex justify-content-center align-items-center" style="height: 400px;">
+                    <i class="fas fa-box fa-5x text-secondary"></i>
+                </div>
+                <div class="card-footer bg-white">
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span>SKU: {{ product.sku }}</span>
+                        <span>Barcode: {{ product.barcode }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Product Details -->
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="card-title mb-3">{{ product.name }}</h1>
+                    
+                    <div class="mb-4">
+                        <h2 class="text-primary fs-3">${{ "%.2f"|format(product.price) }}</h2>
+                        <div class="badge bg-{{ 'success' if product.stock > 10 else 'warning' if product.stock > 0 else 'danger' }} mb-3">
+                            {% if product.stock > 10 %}
+                                In Stock
+                            {% elif product.stock > 0 %}
+                                Low Stock ({{ product.stock }} left)
+                            {% else %}
+                                Out of Stock
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5>Description</h5>
+                        <p>{{ product.description or 'No description available.' }}</p>
+                    </div>
+                    
+                    {% if current_user.is_authenticated and product.stock > 0 %}
+                        <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST">
+                            <div class="row align-items-end">
+                                <div class="col-md-4 mb-3">
+                                    <label for="quantity" class="form-label">Quantity</label>
+                                    <input type="number" class="form-control" id="quantity" name="quantity" min="1" max="{{ product.stock }}" value="1">
+                                </div>
+                                <div class="col-md-8 mb-3">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                                        <i class="fas fa-cart-plus me-2"></i> Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    {% elif not current_user.is_authenticated %}
+                        <div class="alert alert-info">
+                            <a href="{{ url_for('login') }}">Sign in</a> or <a href="{{ url_for('register') }}">create an account</a> to add this product to your cart.
+                        </div>
+                    {% elif product.stock <= 0 %}
+                        <div class="alert alert-warning">
+                            This product is currently out of stock.
+                        </div>
+                    {% endif %}
+                    
+                    {% if current_user.is_authenticated and current_user.has_role('admin') %}
+                        <div class="mt-4 pt-4 border-top">
+                            <h5>Admin Actions</h5>
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-edit me-1"></i> Edit Product
+                                </a>
+                                <form action="{{ url_for('admin_delete_product', product_id=product.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="fas fa-trash-alt me-1"></i> Delete Product
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Related Products Section -->
+    <div class="mt-5">
+        <h3 class="mb-4">You might also like</h3>
+        <div class="row">
+            {% for i in range(4) %}
+                <div class="col-md-3 mb-4">
+                    <div class="card product-card shadow-sm h-100">
+                        <div class="card-img-top bg-light d-flex justify-content-center align-items-center" style="height: 180px;">
+                            <i class="fas fa-box fa-3x text-secondary"></i>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">Sample Product {{ i + 1 }}</h5>
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <span class="fw-bold">$99.99</span>
+                                <a href="#" class="btn btn-sm btn-outline-primary">View</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

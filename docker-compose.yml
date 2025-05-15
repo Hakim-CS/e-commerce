@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  user_service:
+    build: ./user_service
+    volumes:
+      - ./user_service:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/user_service
+      - JWT_SECRET_KEY=supersecretkey
+      - SESSION_SECRET=sessionsecretsuperkey
+      - FLASK_APP=main.py
+    command: >
+      bash -c "flask db upgrade &&
+               gunicorn --bind 0.0.0.0:8000 --workers 2 main:app"
+
+  product_service:
+    build: ./product_service
+    volumes:
+      - ./product_service:/app
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      user_service:
+        condition: service_started
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/product_service
+      - USER_SERVICE_URL=http://user_service:8000
+      - SESSION_SECRET=sessionsecretsuperkey
+      - FLASK_APP=main.py
+    command: >
+      bash -c "flask db upgrade &&
+               gunicorn --bind 0.0.0.0:8001 --workers 2 main:app"
+
+  frontend:
+    build: 
+      context: ./frontend
+      args:
+        - REACT_APP_USER_SERVICE_URL=http://localhost:8000
+        - REACT_APP_PRODUCT_SERVICE_URL=http://localhost:8001
+    ports:
+      - "3000:80"
+    depends_on:
+      - user_service
+      - product_service
+
+volumes:
+  postgres_data:

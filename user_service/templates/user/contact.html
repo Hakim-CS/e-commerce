@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+
+{% block title %}My Contacts{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2><i class="fas fa-phone-alt me-2"></i>My Contact Information</h2>
+    </div>
+    <div class="col-md-6 text-md-end">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addContactModal">
+            <i class="fas fa-plus me-1"></i>Add New Contact
+        </button>
+    </div>
+</div>
+
+{% if contacts %}
+<div class="row">
+    {% for contact in contacts %}
+    <div class="col-md-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    {{ contact.contact_type }} Contact
+                    {% if contact.is_default %}
+                    <span class="badge bg-primary ms-2">Default</span>
+                    {% endif %}
+                </h5>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ contact.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton{{ contact.id }}">
+                        <li>
+                            <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editContactModal" 
+                                    data-contact-id="{{ contact.id }}"
+                                    data-contact-type="{{ contact.contact_type }}"
+                                    data-phone-number="{{ contact.phone_number }}"
+                                    data-email="{{ contact.email }}"
+                                    data-is-default="{{ contact.is_default }}">
+                                <i class="fas fa-edit me-2"></i>Edit
+                            </button>
+                        </li>
+                        {% if not contact.is_default %}
+                        <li>
+                            <form action="{{ url_for('address_contact.update_contact', contact_id=contact.id) }}" method="POST">
+                                <input type="hidden" name="is_default" value="true">
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-star me-2"></i>Set as Default
+                                </button>
+                            </form>
+                        </li>
+                        {% endif %}
+                        <li>
+                            <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#deleteContactModal" data-contact-id="{{ contact.id }}">
+                                <i class="fas fa-trash me-2"></i>Delete
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if contact.phone_number %}
+                <p class="card-text">
+                    <i class="fas fa-phone me-2"></i>{{ contact.phone_number }}
+                </p>
+                {% endif %}
+                {% if contact.email %}
+                <p class="card-text">
+                    <i class="fas fa-envelope me-2"></i>{{ contact.email }}
+                </p>
+                {% endif %}
+            </div>
+            <div class="card-footer text-muted">
+                <small>Added: {{ contact.created_at.strftime('%Y-%m-%d') }}</small>
+                {% if contact.created_at != contact.updated_at %}
+                <small class="ms-2">Updated: {{ contact.updated_at.strftime('%Y-%m-%d') }}</small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow text-center py-5">
+            <div class="card-body">
+                <i class="fas fa-address-card fa-4x mb-3 text-muted"></i>
+                <h3>No Contact Information Found</h3>
+                <p class="text-muted">You haven't added any contact information yet.</p>
+                <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#addContactModal">
+                    <i class="fas fa-plus me-1"></i>Add Your First Contact
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Add Contact Modal -->
+<div class="modal fade" id="addContactModal" tabindex="-1" aria-labelledby="addContactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addContactModalLabel">Add New Contact</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('address_contact.create_contact') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="contact_type" class="form-label">Contact Type</label>
+                        <select class="form-select" id="contact_type" name="contact_type" required>
+                            <option value="Home">Home</option>
+                            <option value="Work">Work</option>
+                            <option value="Mobile">Mobile</option>
+                            <option value="Emergency">Emergency</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone_number" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="phone_number" name="phone_number">
+                        <small class="form-text text-muted">At least one phone number or email is required</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email">
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="is_default" name="is_default" value="true">
+                        <label class="form-check-label" for="is_default">
+                            Set as default contact
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="addContactBtn">Add Contact</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Contact Modal -->
+<div class="modal fade" id="editContactModal" tabindex="-1" aria-labelledby="editContactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editContactModalLabel">Edit Contact</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editContactForm" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_contact_type" class="form-label">Contact Type</label>
+                        <select class="form-select" id="edit_contact_type" name="contact_type" required>
+                            <option value="Home">Home</option>
+                            <option value="Work">Work</option>
+                            <option value="Mobile">Mobile</option>
+                            <option value="Emergency">Emergency</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_phone_number" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="edit_phone_number" name="phone_number">
+                        <small class="form-text text-muted">At least one phone number or email is required</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="edit_email" name="email">
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="edit_is_default" name="is_default" value="true">
+                        <label class="form-check-label" for="edit_is_default">
+                            Set as default contact
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="editContactBtn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Contact Modal -->
+<div class="modal fade" id="deleteContactModal" tabindex="-1" aria-labelledby="deleteContactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteContactModalLabel">Delete Contact</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this contact information? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteContactForm" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Validate that at least one phone or email is provided
+    function validateContactForm() {
+        const phoneInput = document.getElementById('phone_number');
+        const emailInput = document.getElementById('email');
+        const addButton = document.getElementById('addContactBtn');
+        
+        if (!phoneInput.value && !emailInput.value) {
+            addButton.disabled = true;
+            phoneInput.classList.add('is-invalid');
+            emailInput.classList.add('is-invalid');
+            return false;
+        } else {
+            addButton.disabled = false;
+            phoneInput.classList.remove('is-invalid');
+            emailInput.classList.remove('is-invalid');
+            return true;
+        }
+    }
+    
+    const phoneInput = document.getElementById('phone_number');
+    const emailInput = document.getElementById('email');
+    
+    if (phoneInput && emailInput) {
+        phoneInput.addEventListener('input', validateContactForm);
+        emailInput.addEventListener('input', validateContactForm);
+    }
+    
+    // Same validation for edit form
+    function validateEditContactForm() {
+        const phoneInput = document.getElementById('edit_phone_number');
+        const emailInput = document.getElementById('edit_email');
+        const editButton = document.getElementById('editContactBtn');
+        
+        if (!phoneInput.value && !emailInput.value) {
+            editButton.disabled = true;
+            phoneInput.classList.add('is-invalid');
+            emailInput.classList.add('is-invalid');
+            return false;
+        } else {
+            editButton.disabled = false;
+            phoneInput.classList.remove('is-invalid');
+            emailInput.classList.remove('is-invalid');
+            return true;
+        }
+    }
+    
+    const editPhoneInput = document.getElementById('edit_phone_number');
+    const editEmailInput = document.getElementById('edit_email');
+    
+    if (editPhoneInput && editEmailInput) {
+        editPhoneInput.addEventListener('input', validateEditContactForm);
+        editEmailInput.addEventListener('input', validateEditContactForm);
+    }
+    
+    // Edit Contact Modal
+    const editContactModal = document.getElementById('editContactModal');
+    if (editContactModal) {
+        editContactModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const contactId = button.getAttribute('data-contact-id');
+            const contactType = button.getAttribute('data-contact-type');
+            const phoneNumber = button.getAttribute('data-phone-number');
+            const email = button.getAttribute('data-email');
+            const isDefault = button.getAttribute('data-is-default');
+            
+            // Populate form fields
+            document.getElementById('edit_contact_type').value = contactType;
+            document.getElementById('edit_phone_number').value = phoneNumber || '';
+            document.getElementById('edit_email').value = email || '';
+            document.getElementById('edit_is_default').checked = isDefault === 'True';
+            
+            // Set form action URL
+            document.getElementById('editContactForm').action = `/address/contact/${contactId}`;
+        });
+    }
+    
+    // Delete Contact Modal
+    const deleteContactModal = document.getElementById('deleteContactModal');
+    if (deleteContactModal) {
+        deleteContactModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const contactId = button.getAttribute('data-contact-id');
+            
+            // Set form action URL
+            document.getElementById('deleteContactForm').action = `/address/contact/${contactId}?_method=DELETE`;
+            
+            // Since we can't use DELETE method in forms, add a hidden input for the method
+            const methodInput = document.createElement('input');
+            methodInput.type = 'hidden';
+            methodInput.name = '_method';
+            methodInput.value = 'DELETE';
+            document.getElementById('deleteContactForm').appendChild(methodInput);
+        });
+    }
+</script>
+{% endblock %}

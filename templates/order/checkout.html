@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - E-Commerce Platform{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('view_cart') }}">Shopping Cart</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Checkout Information</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('create_order') }}" method="POST" id="checkout-form">
+                    <div class="mb-4">
+                        <h6 class="mb-3">Shipping Address</h6>
+                        
+                        {% if shipping_addresses %}
+                            <div class="mb-3">
+                                <select class="form-select" id="shipping_address_select">
+                                    <option value="">Choose a saved address...</option>
+                                    {% for address in shipping_addresses %}
+                                        <option value="{{ address.id }}" 
+                                                data-street="{{ address.street }}"
+                                                data-city="{{ address.city }}"
+                                                data-state="{{ address.state }}"
+                                                data-postal-code="{{ address.postal_code }}"
+                                                data-country="{{ address.country }}">
+                                            {{ address.address_type }}: {{ address.street }}, {{ address.city }}, {{ address.country }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label for="shipping_address" class="form-label">Full Address</label>
+                            <textarea class="form-control" id="shipping_address" name="shipping_address" rows="3" required placeholder="Enter your full shipping address"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="same_billing_address" checked>
+                            <label class="form-check-label" for="same_billing_address">
+                                Billing address is the same as shipping address
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div id="billing_address_section" class="mb-4 d-none">
+                        <h6 class="mb-3">Billing Address</h6>
+                        
+                        {% if shipping_addresses %}
+                            <div class="mb-3">
+                                <select class="form-select" id="billing_address_select">
+                                    <option value="">Choose a saved address...</option>
+                                    {% for address in shipping_addresses %}
+                                        <option value="{{ address.id }}"
+                                                data-street="{{ address.street }}"
+                                                data-city="{{ address.city }}"
+                                                data-state="{{ address.state }}"
+                                                data-postal-code="{{ address.postal_code }}"
+                                                data-country="{{ address.country }}">
+                                            {{ address.address_type }}: {{ address.street }}, {{ address.city }}, {{ address.country }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label for="billing_address" class="form-label">Full Address</label>
+                            <textarea class="form-control" id="billing_address" name="billing_address" rows="3" placeholder="Enter your billing address"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h6 class="mb-3">Contact Information</h6>
+                        
+                        {% if contact_info %}
+                            <div class="mb-3">
+                                <select class="form-select" id="contact_info_select">
+                                    <option value="">Choose saved contact...</option>
+                                    {% for contact in contact_info %}
+                                        <option value="{{ contact.id }}"
+                                                data-phone="{{ contact.phone_number }}"
+                                                data-email="{{ contact.email }}">
+                                            {{ contact.contact_type }}: {% if contact.phone_number %}{{ contact.phone_number }}{% else %}{{ contact.email }}{% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label for="contact_info" class="form-label">Email and Phone</label>
+                            <textarea class="form-control" id="contact_info" name="contact_info" rows="2" required placeholder="Enter your email and phone number"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h6 class="mb-3">Payment Method</h6>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="payment_method" id="payment_method_credit" value="credit_card" checked>
+                            <label class="form-check-label" for="payment_method_credit">
+                                Credit Card (Payment will be processed at the next step)
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Order Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    {% for item, product in items %}
+                        <div class="d-flex justify-content-between mb-2">
+                            <div>
+                                <span>{{ item.quantity }}x {{ product.name }}</span>
+                                <br>
+                                <small class="text-muted">${{ "%.2f"|format(item.price) }} each</small>
+                            </div>
+                            <span>${{ "%.2f"|format(item.total) }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <hr>
+                
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal</span>
+                    <span>${{ "%.2f"|format(total) }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Shipping</span>
+                    <span>Free</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Tax</span>
+                    <span>Calculated at next step</span>
+                </div>
+                
+                <hr>
+                
+                <div class="d-flex justify-content-between mb-4">
+                    <strong>Total</strong>
+                    <strong>${{ "%.2f"|format(total) }}</strong>
+                </div>
+                
+                <div class="d-grid mb-3">
+                    <button type="submit" form="checkout-form" class="btn btn-primary btn-lg">
+                        Place Order
+                    </button>
+                </div>
+                
+                <div class="d-grid">
+                    <a href="{{ url_for('view_cart') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Cart
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handling billing address toggle
+    const sameBillingCheck = document.getElementById('same_billing_address');
+    const billingSection = document.getElementById('billing_address_section');
+    const billingAddressField = document.getElementById('billing_address');
+    
+    sameBillingCheck.addEventListener('change', function() {
+        if (this.checked) {
+            billingSection.classList.add('d-none');
+            billingAddressField.required = false;
+        } else {
+            billingSection.classList.remove('d-none');
+            billingAddressField.required = true;
+        }
+    });
+    
+    // Handle shipping address selection
+    const shippingSelect = document.getElementById('shipping_address_select');
+    const shippingField = document.getElementById('shipping_address');
+    
+    if (shippingSelect) {
+        shippingSelect.addEventListener('change', function() {
+            if (this.value) {
+                const selectedOption = this.options[this.selectedIndex];
+                const street = selectedOption.getAttribute('data-street');
+                const city = selectedOption.getAttribute('data-city');
+                const state = selectedOption.getAttribute('data-state');
+                const postalCode = selectedOption.getAttribute('data-postal-code');
+                const country = selectedOption.getAttribute('data-country');
+                
+                shippingField.value = `${street}\n${city}, ${state} ${postalCode}\n${country}`;
+            } else {
+                shippingField.value = '';
+            }
+        });
+    }
+    
+    // Handle billing address selection
+    const billingSelect = document.getElementById('billing_address_select');
+    const billingField = document.getElementById('billing_address');
+    
+    if (billingSelect) {
+        billingSelect.addEventListener('change', function() {
+            if (this.value) {
+                const selectedOption = this.options[this.selectedIndex];
+                const street = selectedOption.getAttribute('data-street');
+                const city = selectedOption.getAttribute('data-city');
+                const state = selectedOption.getAttribute('data-state');
+                const postalCode = selectedOption.getAttribute('data-postal-code');
+                const country = selectedOption.getAttribute('data-country');
+                
+                billingField.value = `${street}\n${city}, ${state} ${postalCode}\n${country}`;
+            } else {
+                billingField.value = '';
+            }
+        });
+    }
+    
+    // Handle contact info selection
+    const contactSelect = document.getElementById('contact_info_select');
+    const contactField = document.getElementById('contact_info');
+    
+    if (contactSelect) {
+        contactSelect.addEventListener('change', function() {
+            if (this.value) {
+                const selectedOption = this.options[this.selectedIndex];
+                const phone = selectedOption.getAttribute('data-phone') || '';
+                const email = selectedOption.getAttribute('data-email') || '';
+                
+                contactField.value = `Email: ${email}\nPhone: ${phone}`;
+            } else {
+                contactField.value = '';
+            }
+        });
+    }
+    
+    // Form validation
+    const checkoutForm = document.getElementById('checkout-form');
+    
+    checkoutForm.addEventListener('submit', function(e) {
+        const shippingAddress = document.getElementById('shipping_address').value.trim();
+        
+        if (!shippingAddress) {
+            e.preventDefault();
+            alert('Please enter a shipping address.');
+            return false;
+        }
+        
+        const isSameBilling = document.getElementById('same_billing_address').checked;
+        
+        if (!isSameBilling) {
+            const billingAddress = document.getElementById('billing_address').value.trim();
+            if (!billingAddress) {
+                e.preventDefault();
+                alert('Please enter a billing address.');
+                return false;
+            }
+        }
+        
+        const contactInfo = document.getElementById('contact_info').value.trim();
+        
+        if (!contactInfo) {
+            e.preventDefault();
+            alert('Please enter your contact information.');
+            return false;
+        }
+        
+        return true;
+    });
+});
+</script>
+{% endblock %}

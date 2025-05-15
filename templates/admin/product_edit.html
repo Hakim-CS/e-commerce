@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_new %}Add New Product{% else %}Edit Product{% endif %} - Admin{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('admin_products') }}">Manage Products</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{% if is_new %}Add New Product{% else %}Edit Product{% endif %}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">{% if is_new %}Add New Product{% else %}Edit Product: {{ product.name }}{% endif %}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% if is_new %}{{ url_for('create_product') }}{% else %}{{ url_for('update_product', product_id=product.id) }}{% endif %}">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Enter product name" value="{% if product %}{{ product.name }}{% endif %}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="price" class="form-label">Price ($)</label>
+                            <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" placeholder="0.00" value="{% if product %}{{ product.price }}{% endif %}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="sku" class="form-label">SKU</label>
+                            <input type="text" class="form-control" id="sku" name="sku" placeholder="Stock Keeping Unit" value="{% if product %}{{ product.sku }}{% endif %}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="barcode" class="form-label">Barcode</label>
+                            <input type="text" class="form-control" id="barcode" name="barcode" placeholder="Product barcode" value="{% if product %}{{ product.barcode }}{% endif %}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="stock" class="form-label">Stock Quantity</label>
+                            <input type="number" class="form-control" id="stock" name="stock" min="0" placeholder="0" value="{% if product %}{{ product.stock }}{% else %}0{% endif %}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="5" placeholder="Enter product description">{% if product %}{{ product.description }}{% endif %}</textarea>
+                    </div>
+                    
+                    {% if not is_new %}
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="is_deleted" name="is_deleted" value="true" {% if product and product.is_deleted %}checked{% endif %}>
+                        <label class="form-check-label" for="is_deleted">Mark as Deleted</label>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin_products') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">{% if is_new %}Create Product{% else %}Update Product{% endif %}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

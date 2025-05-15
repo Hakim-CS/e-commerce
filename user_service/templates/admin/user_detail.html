@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+
+{% block title %}User Details - Admin{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2><i class="fas fa-user me-2"></i>User Details</h2>
+    </div>
+    <div class="col-md-6 text-md-end">
+        <a href="{{ url_for('user.get_all_users') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Users
+        </a>
+        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editUserModal">
+            <i class="fas fa-edit me-1"></i>Edit User
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Personal Information</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <tr>
+                        <th>User ID:</th>
+                        <td>{{ user.id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Username:</th>
+                        <td>{{ user.username }}</td>
+                    </tr>
+                    <tr>
+                        <th>Email:</th>
+                        <td>{{ user.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>First Name:</th>
+                        <td>{{ user.first_name or 'Not provided' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Last Name:</th>
+                        <td>{{ user.last_name or 'Not provided' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Status:</th>
+                        <td>
+                            {% if user.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Created:</th>
+                        <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Last Updated:</th>
+                        <td>{{ user.updated_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-user-tag me-2"></i>Roles & Permissions</h5>
+            </div>
+            <div class="card-body">
+                <h6>Roles:</h6>
+                <ul class="list-group mb-3">
+                    {% for role in user.roles %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ role.name }}
+                        <span class="badge bg-primary rounded-pill">{{ role.permissions|length }} permissions</span>
+                    </li>
+                    {% else %}
+                    <li class="list-group-item">No roles assigned</li>
+                    {% endfor %}
+                </ul>
+                
+                <h6>Permissions:</h6>
+                <div class="mb-3">
+                    {% for role in user.roles %}
+                        {% for permission in role.permissions %}
+                        <span class="badge bg-secondary me-1 mb-1">{{ permission.code }}</span>
+                        {% endfor %}
+                    {% else %}
+                    <p>No permissions available</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-address-book me-2"></i>Addresses</h5>
+            </div>
+            <div class="card-body">
+                {% if user.addresses %}
+                <div class="accordion" id="addressAccordion">
+                    {% for address in user.addresses %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="address-heading-{{ address.id }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#address-collapse-{{ address.id }}" aria-expanded="false" aria-controls="address-collapse-{{ address.id }}">
+                                {{ address.address_type }} Address
+                                {% if address.is_default %}
+                                <span class="badge bg-primary ms-2">Default</span>
+                                {% endif %}
+                            </button>
+                        </h2>
+                        <div id="address-collapse-{{ address.id }}" class="accordion-collapse collapse" aria-labelledby="address-heading-{{ address.id }}">
+                            <div class="accordion-body">
+                                <p>{{ address.street }}<br>
+                                {{ address.city }}, {{ address.state }} {{ address.postal_code }}<br>
+                                {{ address.country }}</p>
+                                <small class="text-muted">Added on {{ address.created_at.strftime('%Y-%m-%d') }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p>No addresses available</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-phone me-2"></i>Contact Information</h5>
+            </div>
+            <div class="card-body">
+                {% if user.contacts %}
+                <div class="accordion" id="contactAccordion">
+                    {% for contact in user.contacts %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="contact-heading-{{ contact.id }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#contact-collapse-{{ contact.id }}" aria-expanded="false" aria-controls="contact-collapse-{{ contact.id }}">
+                                {{ contact.contact_type }} Contact
+                                {% if contact.is_default %}
+                                <span class="badge bg-primary ms-2">Default</span>
+                                {% endif %}
+                            </button>
+                        </h2>
+                        <div id="contact-collapse-{{ contact.id }}" class="accordion-collapse collapse" aria-labelledby="contact-heading-{{ contact.id }}">
+                            <div class="accordion-body">
+                                {% if contact.phone_number %}
+                                <p><i class="fas fa-phone me-2"></i>{{ contact.phone_number }}</p>
+                                {% endif %}
+                                {% if contact.email %}
+                                <p><i class="fas fa-envelope me-2"></i>{{ contact.email }}</p>
+                                {% endif %}
+                                <small class="text-muted">Added on {{ contact.created_at.strftime('%Y-%m-%d') }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p>No contact information available</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-tools me-2"></i>Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#resetPasswordModal">
+                        <i class="fas fa-key me-1"></i>Reset Password
+                    </button>
+                    {% if user.is_active %}
+                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deactivateUserModal">
+                        <i class="fas fa-user-slash me-1"></i>Deactivate User
+                    </button>
+                    {% else %}
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#activateUserModal">
+                        <i class="fas fa-user-check me-1"></i>Activate User
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('user.update_user', user_id=user.id) }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="first_name" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="last_name" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="true" {% if user.is_active %}checked{% endif %}>
+                            <label class="form-check-label" for="is_active">Active</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Roles</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="1" id="roleAdmin" name="role_ids" {% if user.has_role('admin') %}checked{% endif %}>
+                            <label class="form-check-label" for="roleAdmin">Admin</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="2" id="roleUser" name="role_ids" {% if user.has_role('user') %}checked{% endif %}>
+                            <label class="form-check-label" for="roleUser">User</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resetPasswordModalLabel">Reset Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('user.reset_password', user_id=user.id) }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Reset Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Deactivate User Modal -->
+<div class="modal fade" id="deactivateUserModal" tabindex="-1" aria-labelledby="deactivateUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deactivateUserModalLabel">Deactivate User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to deactivate user <strong>{{ user.username }}</strong>?</p>
+                <p class="text-danger">This will prevent the user from logging in until reactivated.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="{{ url_for('user.deactivate_user', user_id=user.id) }}" method="POST">
+                    <button type="submit" class="btn btn-danger">Deactivate</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activate User Modal -->
+<div class="modal fade" id="activateUserModal" tabindex="-1" aria-labelledby="activateUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="activateUserModalLabel">Activate User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to activate user <strong>{{ user.username }}</strong>?</p>
+                <p class="text-success">This will allow the user to log in again.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="{{ url_for('user.update_user', user_id=user.id) }}" method="POST">
+                    <input type="hidden" name="is_active" value="true">
+                    <button type="submit" class="btn btn-success">Activate</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

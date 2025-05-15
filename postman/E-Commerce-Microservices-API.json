@@ -1,0 +1,1373 @@
+{
+	"info": {
+		"_postman_id": "e2e84f7b-a0a0-4d9b-a1a5-9c5a0c1b8f7d",
+		"name": "E-Commerce Microservices API",
+		"description": "API collection for the microservices-based e-commerce application.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "User Service",
+			"item": [
+				{
+					"name": "Authentication",
+					"item": [
+						{
+							"name": "Login",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+								},
+								"url": {
+									"raw": "{{user_service_url}}/auth/login",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								},
+								"description": "Authenticate a user and get JWT token."
+							},
+							"response": []
+						},
+						{
+							"name": "Logout",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{user_service_url}}/auth/logout",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"auth",
+										"logout"
+									]
+								},
+								"description": "Logout a user and invalidate token."
+							},
+							"response": []
+						},
+						{
+							"name": "Check Login",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{user_service_url}}/auth/checkLogin",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"auth",
+										"checkLogin"
+									]
+								},
+								"description": "Check if user is still logged in and token is valid."
+							},
+							"response": []
+						},
+						{
+							"name": "Refresh Token",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{refresh_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{user_service_url}}/auth/refresh",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"auth",
+										"refresh"
+									]
+								},
+								"description": "Refresh access token using refresh token."
+							},
+							"response": []
+						}
+					],
+					"description": "Endpoints for user authentication."
+				},
+				{
+					"name": "Authorization",
+					"item": [
+						{
+							"name": "Get User Permissions",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{user_service_url}}/authz/permissions",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"authz",
+										"permissions"
+									]
+								},
+								"description": "Get all permissions for the current user."
+							},
+							"response": []
+						},
+						{
+							"name": "Check Role",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{user_service_url}}/authz/hasRole/admin",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"authz",
+										"hasRole",
+										"admin"
+									]
+								},
+								"description": "Check if user has a specific role."
+							},
+							"response": []
+						},
+						{
+							"name": "Check Permission",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{user_service_url}}/authz/hasPermission/user.create",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"authz",
+										"hasPermission",
+										"user.create"
+									]
+								},
+								"description": "Check if user has a specific permission."
+							},
+							"response": []
+						}
+					],
+					"description": "Endpoints for user authorization."
+				},
+				{
+					"name": "Users",
+					"item": [
+						{
+							"name": "Get All Users",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{user_service_url}}/user",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"user"
+									]
+								},
+								"description": "Get all users (admin only)."
+							},
+							"response": []
+						},
+						{
+							"name": "Get User by ID",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{user_service_url}}/user/1",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"user",
+										"1"
+									]
+								},
+								"description": "Get details of a specific user (admin only)."
+							},
+							"response": []
+						},
+						{
+							"name": "Create User",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"username\": \"newuser\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"New\",\n  \"last_name\": \"User\",\n  \"is_active\": true\n}"
+								},
+								"url": {
+									"raw": "{{user_service_url}}/user",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"user"
+									]
+								},
+								"description": "Create a new user (admin only)."
+							},
+							"response": []
+						},
+						{
+							"name": "Update User",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"updated@example.com\",\n  \"first_name\": \"Updated\",\n  \"last_name\": \"User\"\n}"
+								},
+								"url": {
+									"raw": "{{user_service_url}}/user/2",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"user",
+										"2"
+									]
+								},
+								"description": "Update a user (admin only)."
+							},
+							"response": []
+						},
+						{
+							"name": "Delete User",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{user_service_url}}/user/2",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"user",
+										"2"
+									]
+								},
+								"description": "Delete a user (soft delete) (admin only)."
+							},
+							"response": []
+						},
+						{
+							"name": "Change Password",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"old_password\": \"password123\",\n  \"new_password\": \"newpassword123\"\n}"
+								},
+								"url": {
+									"raw": "{{user_service_url}}/user/changePassword",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"user",
+										"changePassword"
+									]
+								},
+								"description": "Change user's own password."
+							},
+							"response": []
+						},
+						{
+							"name": "Reset Password",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"new_password\": \"resetpassword123\"\n}"
+								},
+								"url": {
+									"raw": "{{user_service_url}}/user/resetPassword/2",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"user",
+										"resetPassword",
+										"2"
+									]
+								},
+								"description": "Reset a user's password (admin only)."
+							},
+							"response": []
+						},
+						{
+							"name": "Get Profile",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{user_service_url}}/user/profile",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"user",
+										"profile"
+									]
+								},
+								"description": "Get current user's profile information."
+							},
+							"response": []
+						},
+						{
+							"name": "Deactivate User",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "{{user_service_url}}/user/deactivate/2",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"user",
+										"deactivate",
+										"2"
+									]
+								},
+								"description": "Deactivate a user (admin only)."
+							},
+							"response": []
+						},
+						{
+							"name": "Deactivate Own Account",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "{{user_service_url}}/user/deactivate",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"user",
+										"deactivate"
+									]
+								},
+								"description": "Deactivate the current user's account."
+							},
+							"response": []
+						}
+					],
+					"description": "Endpoints for user management."
+				},
+				{
+					"name": "Addresses",
+					"item": [
+						{
+							"name": "Get Addresses",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{user_service_url}}/address",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"address"
+									]
+								},
+								"description": "Get all addresses for the current user."
+							},
+							"response": []
+						},
+						{
+							"name": "Create Address",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"address_type\": \"home\",\n  \"street\": \"123 Main St\",\n  \"city\": \"Boston\",\n  \"state\": \"MA\",\n  \"postal_code\": \"02108\",\n  \"country\": \"USA\",\n  \"is_default\": true\n}"
+								},
+								"url": {
+									"raw": "{{user_service_url}}/address",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"address"
+									]
+								},
+								"description": "Create a new address for the current user."
+							},
+							"response": []
+						},
+						{
+							"name": "Update Address",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"address_type\": \"home\",\n  \"street\": \"456 Oak St\",\n  \"city\": \"Boston\",\n  \"state\": \"MA\",\n  \"postal_code\": \"02108\",\n  \"country\": \"USA\",\n  \"is_default\": true\n}"
+								},
+								"url": {
+									"raw": "{{user_service_url}}/address/1",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"address",
+										"1"
+									]
+								},
+								"description": "Update an address for the current user."
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Address",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{user_service_url}}/address/1",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"address",
+										"1"
+									]
+								},
+								"description": "Delete an address for the current user."
+							},
+							"response": []
+						}
+					],
+					"description": "Endpoints for managing user addresses."
+				},
+				{
+					"name": "Contacts",
+					"item": [
+						{
+							"name": "Get Contacts",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{user_service_url}}/contact",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"contact"
+									]
+								},
+								"description": "Get all contact information for the current user."
+							},
+							"response": []
+						},
+						{
+							"name": "Create Contact",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"contact_type\": \"home\",\n  \"phone_number\": \"+1234567890\",\n  \"email\": \"home@example.com\",\n  \"is_default\": true\n}"
+								},
+								"url": {
+									"raw": "{{user_service_url}}/contact",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"contact"
+									]
+								},
+								"description": "Create a new contact for the current user."
+							},
+							"response": []
+						},
+						{
+							"name": "Update Contact",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"contact_type\": \"home\",\n  \"phone_number\": \"+1987654321\",\n  \"email\": \"updated@example.com\",\n  \"is_default\": true\n}"
+								},
+								"url": {
+									"raw": "{{user_service_url}}/contact/1",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"contact",
+										"1"
+									]
+								},
+								"description": "Update a contact for the current user."
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Contact",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{user_service_url}}/contact/1",
+									"host": [
+										"{{user_service_url}}"
+									],
+									"path": [
+										"contact",
+										"1"
+									]
+								},
+								"description": "Delete a contact for the current user."
+							},
+							"response": []
+						}
+					],
+					"description": "Endpoints for managing user contact information."
+				}
+			],
+			"description": "User authentication, authorization, and profile management microservice."
+		},
+		{
+			"name": "Product Service",
+			"item": [
+				{
+					"name": "Products",
+					"item": [
+						{
+							"name": "Get All Products",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{product_service_url}}/product",
+									"host": [
+										"{{product_service_url}}"
+									],
+									"path": [
+										"product"
+									]
+								},
+								"description": "Get a list of all active products."
+							},
+							"response": []
+						},
+						{
+							"name": "Get Product by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{product_service_url}}/product/1",
+									"host": [
+										"{{product_service_url}}"
+									],
+									"path": [
+										"product",
+										"1"
+									]
+								},
+								"description": "Get details of a specific product."
+							},
+							"response": []
+						},
+						{
+							"name": "Create Product",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"New Product\",\n  \"sku\": \"NP-001\",\n  \"barcode\": \"123456789012\",\n  \"description\": \"A new product description\",\n  \"price\": 99.99,\n  \"stock\": 100\n}"
+								},
+								"url": {
+									"raw": "{{product_service_url}}/product",
+									"host": [
+										"{{product_service_url}}"
+									],
+									"path": [
+										"product"
+									]
+								},
+								"description": "Create a new product (admin only)."
+							},
+							"response": []
+						},
+						{
+							"name": "Update Product",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Updated Product\",\n  \"description\": \"Updated product description\",\n  \"price\": 89.99,\n  \"stock\": 120\n}"
+								},
+								"url": {
+									"raw": "{{product_service_url}}/product/1",
+									"host": [
+										"{{product_service_url}}"
+									],
+									"path": [
+										"product",
+										"1"
+									]
+								},
+								"description": "Update a product (admin only)."
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Product",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{product_service_url}}/product/1",
+									"host": [
+										"{{product_service_url}}"
+									],
+									"path": [
+										"product",
+										"1"
+									]
+								},
+								"description": "Delete a product (soft delete) (admin only)."
+							},
+							"response": []
+						},
+						{
+							"name": "Admin Product Management",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{product_service_url}}/product/admin",
+									"host": [
+										"{{product_service_url}}"
+									],
+									"path": [
+										"product",
+										"admin"
+									]
+								},
+								"description": "Get admin product management panel (admin only)."
+							},
+							"response": []
+						}
+					],
+					"description": "Endpoints for product management."
+				},
+				{
+					"name": "Cart",
+					"item": [
+						{
+							"name": "View Cart",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{product_service_url}}/cart",
+									"host": [
+										"{{product_service_url}}"
+									],
+									"path": [
+										"cart"
+									]
+								},
+								"description": "View the current shopping cart."
+							},
+							"response": []
+						},
+						{
+							"name": "Add to Cart",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"quantity\": 1\n}"
+								},
+								"url": {
+									"raw": "{{product_service_url}}/cart/add/1",
+									"host": [
+										"{{product_service_url}}"
+									],
+									"path": [
+										"cart",
+										"add",
+										"1"
+									]
+								},
+								"description": "Add a product to the cart."
+							},
+							"response": []
+						},
+						{
+							"name": "Update Cart Item",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"action\": \"increase\"\n}"
+								},
+								"url": {
+									"raw": "{{product_service_url}}/cart/update/1",
+									"host": [
+										"{{product_service_url}}"
+									],
+									"path": [
+										"cart",
+										"update",
+										"1"
+									]
+								},
+								"description": "Update a cart item quantity (increase or decrease)."
+							},
+							"response": []
+						},
+						{
+							"name": "Remove from Cart",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{product_service_url}}/cart/remove/1",
+									"host": [
+										"{{product_service_url}}"
+									],
+									"path": [
+										"cart",
+										"remove",
+										"1"
+									]
+								},
+								"description": "Remove an item from the cart."
+							},
+							"response": []
+						},
+						{
+							"name": "Clear Cart",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{product_service_url}}/cart/clear",
+									"host": [
+										"{{product_service_url}}"
+									],
+									"path": [
+										"cart",
+										"clear"
+									]
+								},
+								"description": "Remove all items from the cart."
+							},
+							"response": []
+						}
+					],
+					"description": "Endpoints for shopping cart operations."
+				},
+				{
+					"name": "Orders",
+					"item": [
+						{
+							"name": "Get All Orders",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{product_service_url}}/order",
+									"host": [
+										"{{product_service_url}}"
+									],
+									"path": [
+										"order"
+									]
+								},
+								"description": "Get all orders for the current user."
+							},
+							"response": []
+						},
+						{
+							"name": "Get Order by ID",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{product_service_url}}/order/1",
+									"host": [
+										"{{product_service_url}}"
+									],
+									"path": [
+										"order",
+										"1"
+									]
+								},
+								"description": "Get details of a specific order."
+							},
+							"response": []
+						},
+						{
+							"name": "Create Order",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"shipping_address\": \"123 Main St, Boston, MA 02108, USA\",\n  \"billing_address\": \"123 Main St, Boston, MA 02108, USA\",\n  \"contact_info\": \"Email: user@example.com, Phone: +1234567890\"\n}"
+								},
+								"url": {
+									"raw": "{{product_service_url}}/order",
+									"host": [
+										"{{product_service_url}}"
+									],
+									"path": [
+										"order"
+									]
+								},
+								"description": "Create a new order from the current cart."
+							},
+							"response": []
+						},
+						{
+							"name": "Checkout Page",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{product_service_url}}/order/checkout",
+									"host": [
+										"{{product_service_url}}"
+									],
+									"path": [
+										"order",
+										"checkout"
+									]
+								},
+								"description": "Get the checkout page."
+							},
+							"response": []
+						},
+						{
+							"name": "Cancel Order",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{product_service_url}}/order/1/cancel",
+									"host": [
+										"{{product_service_url}}"
+									],
+									"path": [
+										"order",
+										"1",
+										"cancel"
+									]
+								},
+								"description": "Cancel an order."
+							},
+							"response": []
+						},
+						{
+							"name": "Admin Order Management",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{product_service_url}}/order/admin",
+									"host": [
+										"{{product_service_url}}"
+									],
+									"path": [
+										"order",
+										"admin"
+									]
+								},
+								"description": "Get admin order management panel (admin only)."
+							},
+							"response": []
+						}
+					],
+					"description": "Endpoints for order management."
+				}
+			],
+			"description": "Product, cart, and order management microservice."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "user_service_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "product_service_url",
+			"value": "http://localhost:8001",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
