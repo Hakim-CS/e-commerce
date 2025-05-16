@@ -64,7 +64,7 @@ The easiest way to run the entire application is with Docker Compose:
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd e-commerce-microservices
+cd e-commerce
 
 # Start all services
 docker-compose up --build
