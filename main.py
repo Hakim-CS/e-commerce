@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 from decimal import Decimal
 from functools import wraps
 from dotenv import load_dotenv
-from flask_cors import CORS# No code was selected, so I will provide a general improvement to the existing code.
+from flask_cors import CORS
 
 def initialize_database():
     """Initialize database with required data"""
