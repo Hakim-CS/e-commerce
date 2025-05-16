@@ -12,10 +12,9 @@ node_modules/
 dist/
 build/
 
-# VS Code / Replit
+# VS Code 
 .vscode/
-.replit
-replit.nix
+
 
 # OS
 .DS_Store
