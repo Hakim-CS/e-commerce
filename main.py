@@ -168,9 +168,7 @@ load_dotenv()
 # Create Flask app
 app = Flask(__name__, template_folder='templates')
 app.secret_key = os.environ.get("SESSION_SECRET", "super-secret-key")
-# Find where you have: app = Flask(__name__, template_folder='templates')
-# Add right after that:
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+
 
 # Configure SQLAlchemy
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
