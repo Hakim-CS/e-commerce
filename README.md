@@ -63,7 +63,7 @@ The easiest way to run the entire application is with Docker Compose:
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/Hakim-CS/e-commerce
 cd e-commerce
 
 # Start all services
@@ -75,10 +75,7 @@ After starting the services, you can access:
 - Product Service API: http://localhost:8001
 - Frontend: http://localhost:3000
 
-### Default Admin Credentials
 
-Username: `admin`  
-Password: `admin123`
 
 ## API Documentation
 
